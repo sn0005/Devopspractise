@@ -1,3 +1,4 @@
 This file is created for test purpose to understand how git and github interact with eachother.
 This second line is added to check the second commit and versioning.
 This third line is added to check the versioning.
+This line is edited after branching.
