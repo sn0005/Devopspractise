@@ -1,0 +1,41 @@
+---
+- hosts: test
+  remote_user: ansible
+  become: yes
+  connection: ssh
+  
+  tasks:
+    - name: installing docker compose
+      apt:
+        name:
+          - apt-transport-https
+          - curl
+        update-cache: yes
+        state: latest
+    - name: download docker compose and change mode of dir
+      shell: >
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    #  name: check docker compose version
+    #  command: docker-compose --version
+    #  register: version
+    #  changed_when: false
+    #- name: Display compose version
+    #  debug:
+    #    var: version.stout_lines
+    - name: change permission
+      file:
+        path: /usr/local/bin/docker-compose
+        state: file
+        mode: 'u+x'
+      notify: docker-compose version
+    - name: deploying flask app container in node1
+      command:
+        cmd: docker-compose up -d
+        chdir: /home/ansible/flaskapp/
+      notify: check processing state
+  
+  handlers:
+    - name: docker-compose version
+      shell: docker-compose --version
+    - name: check processing state
+      command: docker ps -a
